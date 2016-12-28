@@ -66,6 +66,7 @@ namespace InstConnection
                 if (groupName != "") this.类型 = 设备.接口头;
                 this.groupCenter = new Point();
                 this.连接设备 = null;
+                this.BackColor = Color.Transparent;
             }
         }
 
@@ -81,6 +82,8 @@ namespace InstConnection
         public Form4()
         {
             InitializeComponent();
+            画笔 = new Pen(Color.Blue, 10);
+            画笔.DashStyle = DashStyle.Solid;//定义线条的样式
 
             //获取路径下所有图片
             DirectoryInfo di1 = new DirectoryInfo(@"附件及电缆");
@@ -219,12 +222,15 @@ namespace InstConnection
             sb.Left = center.X - sb.Width / 2;
             sb.Top = center.Y - sb.Height / 2;
 
+            sb.BackColor = Color.Transparent;
             sb.Parent = panel1;
 
             sb.MouseDown += new System.Windows.Forms.MouseEventHandler(pic_MouseDown);
             sb.MouseMove += new System.Windows.Forms.MouseEventHandler(pic_MouseMove);
             sb.MouseClick += new System.Windows.Forms.MouseEventHandler(pic_MouseClick);
             sb.MouseWheel += new System.Windows.Forms.MouseEventHandler(pic_MouseWheel);
+            if (sb.类型 == 设备.接口头)
+                sb.Paint += new System.Windows.Forms.PaintEventHandler(pic_Paint);
         }
 
         ListView lisview;
@@ -332,6 +338,25 @@ namespace InstConnection
             picY = picbox.Top;
         }
 
+        void 重新计算中点(string groupName) 
+        {
+            Size center = new Size(0, 0);
+            foreach (string k1 in pic.Keys)
+            {
+                if (pic[k1].groupName == groupName)
+                {
+                    Size s = (Size)pic[k1].Location;
+                    if (pic[k1].连接设备 != null)
+                        s += (Size)pic[k1].连接设备.Location;
+                    center += s;
+                    center.Width += pic[k1].Size.Width / 2;
+                    center.Height += pic[k1].Size.Height / 2;
+                }
+            }
+            pic[groupName].groupCenter.X = center.Width / pic[groupName]._接口.Count;
+            pic[groupName].groupCenter.Y = center.Height / pic[groupName]._接口.Count;
+        }
+
         private void pic_MouseMove(object sender, MouseEventArgs e)
         {
             设备 picbox=(设备)sender;
@@ -342,7 +367,19 @@ namespace InstConnection
             if (e.Button == MouseButtons.Left)
             {
                 picbox.Top = y;
-                picbox.Left = x;              
+                picbox.Left = x;
+                if (picbox.类型 == 设备.部件)
+                {
+                    foreach (接口 ii in picbox._接口)
+                    {
+                        if (ii.connectName != "")
+                        {
+                            重新计算中点(pic[ii.connectName].groupName);
+                        }
+                    }
+                }
+                else if (picbox.类型 == 设备.接口头)
+                    重新计算中点(picbox.groupName);
             }
         }
         private void pic_MouseWheel(object sender, MouseEventArgs e)
@@ -375,7 +412,10 @@ namespace InstConnection
                 {
                     if (pic[k].连接设备 != null && pic[k].连接设备.Name == name)
                     {
+                        pic[k].Location = Point.Add(pic[k].连接设备.Location, (Size)pic[k].Location);
                         pic[k].连接设备 = null;
+                        pic[k].Parent = panel1;
+                        重新计算中点(pic[k].groupName);
                     }
                 }
             }
@@ -404,7 +444,6 @@ namespace InstConnection
             设备 picbox = (设备)sender;
             if (e.Button==MouseButtons.Right)
             {
-                //this.Controls.Remove(pic[picbox.Name]);
                 if (picbox.groupName == "")
                     移除设备(picbox.Name);
                 else
@@ -476,11 +515,10 @@ namespace InstConnection
                         if (connect)
                         {
                             show(picbox.Name + " 和 " + pic[connectKey].name + " 连接成功");
-                            线缆.Location = new Point(
-                                (int)(部件.Location.X + 部件.Size.Width * 线缆.连接设备位置.X),
-                                (int)(部件.Location.Y + 部件.Size.Height * 线缆.连接设备位置.Y));
                             线缆.连接设备 = 部件;
-                            线缆.BringToFront();
+                            线缆.Parent = 部件;
+                            线缆.Location = new Point((int)(部件.Size.Width * 线缆.连接设备位置.X), (int)(部件.Size.Height * 线缆.连接设备位置.Y));
+                            重新计算中点(线缆.groupName);
                         }
                         else
                             show("错误 " + picbox.Name + " 和 " + pic[connectKey].name + " 接口不符,不能连接");
@@ -490,53 +528,72 @@ namespace InstConnection
             }
         }
 
+        public Pen 画笔;
+
+        private void pic_Paint(object sender, PaintEventArgs e) 
+        {
+            设备 pic1 = (设备)sender;
+            if (pic1.连接设备 != null)
+            {
+                Pen p = (Pen)画笔.Clone();
+                Graphics g = Graphics.FromHwnd(pic1.连接设备.Handle);
+                Point point = pic[pic1.groupName].groupCenter;
+                point.X -= pic1.连接设备.Location.X;
+                point.Y -= pic1.连接设备.Location.Y;
+                if (pic1.连接设备.Bounds.Contains(pic[pic1.groupName].groupCenter))
+                {
+                    foreach (string k in pic.Keys)
+                    {
+                        if (pic[k].groupName == pic1.groupName)
+                        {
+                            if (pic[k].连接设备==null)
+                                g.DrawLine(p,
+                                new Point(pic[k].Location.X - pic1.连接设备.Location.X + (int)pic[k].Size.Width / 2,
+                                    pic[k].Location.Y - pic1.连接设备.Location.Y + (int)pic[k].Size.Height / 2), point);
+                            else
+                                g.DrawLine(p,
+                                new Point(pic[k].Location.X + pic[k].连接设备.Location.X - pic1.连接设备.Location.X + (int)pic[k].Size.Width / 2,
+                                    pic[k].Location.Y + pic[k].连接设备.Location.Y - pic1.连接设备.Location.Y + (int)pic[k].Size.Height / 2), point);
+                        }
+                    }
+                }
+                else
+                    g.DrawLine(p, new Point(pic1.Location.X + (int)pic1.Size.Width / 2, pic1.Location.Y + (int)pic1.Size.Height / 2), point);
+
+                
+
+                g.Dispose();
+                p.Dispose();
+            }
+        }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
             //this.Refresh();
 
             Panel panel = (Panel)sender;
-            Pen p = new Pen(Color.Blue, 10);//设置笔的粗细为,颜色为蓝色
+            Pen p = (Pen)画笔.Clone();
             Graphics g = Graphics.FromHwnd(panel.Handle);
-
             g.Clear(this.BackColor);
-            p.DashStyle = DashStyle.Solid;//定义线条的样式
+            
             //画实现
-            Dictionary<string,bool> name = new Dictionary<string, bool>();
             foreach (string k in pic.Keys)
             {
                 if (pic[k].groupName != "")
                 {
-                    //中点计算，卡顿去掉                 
-                    if (!name.ContainsKey(pic[k].groupName))
+                    Point point = pic[k].Location;
+                    point.X += pic[k].Size.Width / 2;
+                    point.Y += pic[k].Size.Height / 2;
+                    if (pic[k].连接设备 != null)
                     {
-                        name.Add(pic[k].groupName, true);
-                        Size center = new Size(0,0);
-                        foreach (string k1 in pic.Keys)
-                        {
-                            if (pic[k1].groupName == pic[k].groupName)
-                            {
-                                center += (Size)pic[k1].Location;
-                                center.Width += pic[k1].Size.Width / 2;
-                                center.Height += pic[k1].Size.Height / 2;
-                            }
-                        }
-                        pic[pic[k].groupName].groupCenter.X = center.Width / pic[pic[k].groupName]._接口.Count;
-                        pic[pic[k].groupName].groupCenter.Y = center.Height / pic[pic[k].groupName]._接口.Count;
+                        point.X += pic[k].连接设备.Location.X;
+                        point.Y += pic[k].连接设备.Location.Y;
                     }
-                    //中点计算，卡顿去掉
-                    g.DrawLine(p, new Point(pic[k].Location.X + pic[k].Size.Width / 2, pic[k].Location.Y + pic[k].Size.Height / 2), pic[pic[k].groupName].groupCenter);
-                    if (pic[k].连接设备 != null) 
-                    {
-                        pic[k].Location = Location = new Point(
-                            (int)(pic[k].连接设备.Location.X + pic[k].连接设备.Size.Width * pic[k].连接设备位置.X),
-                            (int)(pic[k].连接设备.Location.Y + pic[k].连接设备.Size.Height * pic[k].连接设备位置.Y));
-                    }
+                    g.DrawLine(p, point, pic[pic[k].groupName].groupCenter);
                 }
             }
             g.Dispose();
             p.Dispose();
-
         }
 
         private void panel1_MouseClick(object sender, MouseEventArgs e)
