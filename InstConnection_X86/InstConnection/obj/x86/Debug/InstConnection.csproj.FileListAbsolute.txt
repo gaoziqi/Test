@@ -52,3 +52,14 @@ E:\Test\InstConnection\InstConnection\obj\x86\Debug\GenerateResource.read.1.tlog
 E:\Test\InstConnection\InstConnection\obj\x86\Debug\GenerateResource.write.1.tlog
 E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\InstConnection.exe
 E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\InstConnection.pdb
+E:\Test\InstConnection_X86\InstConnection\bin\Debug\InstConnection.exe
+E:\Test\InstConnection_X86\InstConnection\bin\Debug\InstConnection.pdb
+E:\Test\InstConnection_X86\InstConnection\bin\Debug\sqlite_gzq.pdb
+E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\ResolveAssemblyReference.cache
+E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\InstConnection.Form1.resources
+E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\InstConnection.Form2.resources
+E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\InstConnection.Form3.resources
+E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\InstConnection.Form4.resources
+E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\InstConnection.Properties.Resources.resources
+E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\GenerateResource.read.1.tlog
+E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\GenerateResource.write.1.tlog

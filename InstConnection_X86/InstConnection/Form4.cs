@@ -11,6 +11,7 @@ using System.Drawing.Drawing2D;
 using System.Collections;
 using 高子奇;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 
 namespace InstConnection
 {
@@ -233,31 +234,13 @@ namespace InstConnection
                 sb.Paint += new System.Windows.Forms.PaintEventHandler(pic_Paint);
         }
 
-        ListView lisview;
+        ListView.SelectedListViewItemCollection SelectedItems = null;
         private void listView1_ItemDrag(object sender, ItemDragEventArgs e)
         {
-
-            lisview = (ListView)sender;
+            ListView lisview = (ListView)sender;
 
             if (lisview.Items.Count == 0) return;
-            int index = lisview.SelectedItems[0].Index;
-
-            设备 temppic = new 设备(lisview.SelectedItems[0].Text);
-            if (temppic.类型 == 设备.部件)
-            {
-                temppic.Image = Image.FromFile(lisview.SelectedItems[0].Name);
-                添加设备(temppic);
-            }
-            else if (temppic.类型 == 设备.线缆)
-            {              
-                添加设备(temppic, false);
-                foreach (接口 ii in temppic._接口) 
-                {
-                    设备 temppic1 = new 设备(ii.图像地址, temppic.Name);
-                    temppic1.Image = Image.FromFile(ii.图像地址);
-                    添加设备(temppic1);
-                }
-            }
+            SelectedItems = lisview.SelectedItems;
 
             lisview.DoDragDrop(lisview.SelectedItems, DragDropEffects.Move);
         }
@@ -270,18 +253,38 @@ namespace InstConnection
 
         private void panel1_DragDrop(object sender, DragEventArgs e)
         {
+            if (SelectedItems == null) return;
             Point screenPoint = Control.MousePosition;//鼠标相对于屏幕左上角的坐标
             Point formPoint = this.PointToClient(Control.MousePosition);//鼠标相对于窗体左上角的坐标
             formPoint.X -= panel1.Location.X;
             formPoint.Y -= panel1.Location.Y;
+
+            设备 temppic = new 设备(SelectedItems[0].Text);
+            if (temppic.类型 == 设备.部件)
+            {
+                temppic.Image = Image.FromFile(SelectedItems[0].Name);
+                添加设备(temppic);
+            }
+            else if (temppic.类型 == 设备.线缆)
+            {
+                添加设备(temppic, false);
+                foreach (接口 ii in temppic._接口)
+                {
+                    设备 temppic1 = new 设备(ii.图像地址, temppic.Name);
+                    temppic1.Image = Image.FromFile(ii.图像地址);
+                    添加设备(temppic1);
+                }
+            }
+
             int i = 0;
-            string str = lisview.SelectedItems[0].Text + i;
+            string str = SelectedItems[0].Text + i;
             while (pic.ContainsKey(str))
             {
-                str = lisview.SelectedItems[0].Text + ++i;
+                str = SelectedItems[0].Text + ++i;
             }
-            
-            string dragname = lisview.SelectedItems[0].Text + --i;
+
+            string dragname = SelectedItems[0].Text + --i;
+
             try
             {
                 pic[dragname].Visible = true;
@@ -316,6 +319,8 @@ namespace InstConnection
                     }
                 }
             }
+
+            SelectedItems = null;
         }
 
 
@@ -332,13 +337,14 @@ namespace InstConnection
         {
             PictureBox picbox = (PictureBox)sender;
             show("移动 " + picbox.Name);
+            picbox.BringToFront();
             mouseX = Cursor.Position.X;
             mouseY = Cursor.Position.Y;
             picX = picbox.Left;
             picY = picbox.Top;
         }
 
-        void 重新计算中点(string groupName) 
+        void 重新计算中点(string groupName)
         {
             Size center = new Size(0, 0);
             foreach (string k1 in pic.Keys)
@@ -355,6 +361,16 @@ namespace InstConnection
             }
             pic[groupName].groupCenter.X = center.Width / pic[groupName]._接口.Count;
             pic[groupName].groupCenter.Y = center.Height / pic[groupName]._接口.Count;
+
+            foreach (string k1 in pic.Keys)
+            {
+                if (pic[k1].groupName == groupName)
+                {
+                    if (pic[k1].连接设备 != null)
+                        pic[k1].连接设备.Invalidate();
+                }
+            }
+
         }
 
         private void pic_MouseMove(object sender, MouseEventArgs e)
@@ -379,7 +395,10 @@ namespace InstConnection
                     }
                 }
                 else if (picbox.类型 == 设备.接口头)
+                {
                     重新计算中点(picbox.groupName);
+                    
+                }
             }
         }
         private void pic_MouseWheel(object sender, MouseEventArgs e)
@@ -413,9 +432,9 @@ namespace InstConnection
                     if (pic[k].连接设备 != null && pic[k].连接设备.Name == name)
                     {
                         pic[k].Location = Point.Add(pic[k].连接设备.Location, (Size)pic[k].Location);
+
                         pic[k].连接设备 = null;
                         pic[k].Parent = panel1;
-                        重新计算中点(pic[k].groupName);
                     }
                 }
             }
@@ -423,6 +442,7 @@ namespace InstConnection
             {
                 if (pic[name].连接设备 != null) 
                 {
+                    pic[name].连接设备.Invalidate();
                     foreach (接口 ii in pic[name].连接设备._接口)
                     {
                         if (ii.connectName == name)
@@ -439,6 +459,11 @@ namespace InstConnection
         }
 
         string connectKey = "";
+
+        [DllImport("user32")]
+        private static extern int SendMessage(IntPtr hwnd, int wMsg, int wParam, IntPtr lParam);
+        private const int WM_SETREDRAW = 0xB;   
+
         private void pic_MouseClick(object sender, MouseEventArgs e)
         {
             设备 picbox = (设备)sender;
@@ -455,8 +480,11 @@ namespace InstConnection
                         if (pic[k].groupName == picbox.groupName)
                             name.Add(k);
                     }
+                    SendMessage(panel1.Handle, WM_SETREDRAW, 0, IntPtr.Zero); 
                     foreach (string k in name)
                         移除设备(k);
+                    SendMessage(panel1.Handle, WM_SETREDRAW, 1, IntPtr.Zero);
+                    panel1.Invalidate();
                 }          
             }
             if (e.Button == MouseButtons.Left)
