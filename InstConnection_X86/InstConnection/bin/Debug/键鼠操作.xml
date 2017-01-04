@@ -1,0 +1,432 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>键鼠操作</name>
+    </assembly>
+    <members>
+        <member name="T:高子奇.模拟鼠标操作">
+            <summary>
+            模拟鼠标操作
+            </summary>
+        </member>
+        <member name="M:高子奇.模拟鼠标操作.模拟鼠标拖动(高子奇.模拟鼠标操作.鼠标,System.Drawing.Point,System.Drawing.Point)">
+            <summary>
+            <para>模拟鼠标拖动</para>
+            <para>按下鼠标某键从起点拖动到终点并弹起鼠标某键</para>
+            </summary>
+            <param name="mode"></param>
+            <param name="起始位置"></param>
+            <param name="终点位置"></param>
+        </member>
+        <member name="M:高子奇.模拟鼠标操作.模拟鼠标_Click(高子奇.模拟鼠标操作.鼠标,System.Drawing.Point,System.Boolean)">
+            <summary>
+            单机鼠标某键
+            </summary>
+            <param name="mode">鼠标某键</param>
+            <param name="位置">屏幕绝对位置</param>
+            <param name="鼠标位置复原">鼠标位置是否复原</param>
+        </member>
+        <member name="M:高子奇.模拟鼠标操作.模拟鼠标_Down(高子奇.模拟鼠标操作.鼠标,System.Drawing.Point)">
+            <summary>
+            按住鼠标某键
+            </summary>
+            <param name="mode">鼠标某键</param>
+            <param name="位置">屏幕绝对位置</param>
+        </member>
+        <member name="M:高子奇.模拟鼠标操作.模拟鼠标_Up(高子奇.模拟鼠标操作.鼠标)">
+            <summary>
+            弹起鼠标某键
+            </summary>
+            <param name="mode">鼠标某键</param>
+        </member>
+        <member name="P:高子奇.模拟鼠标操作.鼠标位置">
+            <summary>
+            设置或获取当前鼠标位置
+            </summary>
+        </member>
+        <member name="T:高子奇.模拟鼠标操作.鼠标">
+            <summary>
+            鼠标某键
+            </summary>
+        </member>
+        <member name="F:高子奇.模拟鼠标操作.鼠标.左键">
+            <summary>
+            鼠标左键
+            </summary>
+        </member>
+        <member name="F:高子奇.模拟鼠标操作.鼠标.右键">
+            <summary>
+            鼠标右键
+            </summary>
+        </member>
+        <member name="F:高子奇.模拟鼠标操作.鼠标.中键">
+            <summary>
+            鼠标中键
+            </summary>
+        </member>
+        <member name="T:高子奇.模拟键盘操作">
+            <summary>
+            模拟键盘按键
+            </summary>
+        </member>
+        <member name="M:高子奇.模拟键盘操作.模拟键盘输入(System.String)">
+            <summary>
+            模拟键盘直接输入字符串的内容
+            </summary>
+            <param name="输入字符串">输入任意字符串</param>
+        </member>
+        <member name="M:高子奇.模拟键盘操作.模拟键盘输入(高子奇.键盘按键)">
+            <summary>
+            模拟键盘直接输入特殊按键
+            </summary>
+            <param name="特殊按键">输入键盘按键对象</param>
+        </member>
+        <member name="T:高子奇.键盘按键">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.退格符">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.BACKSPACE">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.分页符">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.BREAK">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.大写锁定">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.CAPSLOCK">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.删除">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.DELETE">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.向下键">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.DOWN">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.结束">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.END">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.回车键">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.ENTER">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.退出">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.ESC">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.帮助">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.HELP">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.主页">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.HOME">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.插入">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.INSERT">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.向左键">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.LEFT">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.数字锁定">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.NUMLOCK">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.向下翻页">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.PGDN">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.向上翻页">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.PGUP">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.打印屏幕">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.PRTSC">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.向右键">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.RIGHT">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.滚轮锁定">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.SCROLLLOCK">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.制表">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.TAB">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.向上键">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.UP">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F1">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F2">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F3">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F4">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F5">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F6">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F7">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F8">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F9">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F10">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F11">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F12">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F13">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F14">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F15">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.F16">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.数字键盘加号">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.ADD">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.数字键盘减号">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.SUBTRACT">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.数字键盘乘号">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.MULTIPLY">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.数字键盘除号">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.DIVIDE">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.SHIFT">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.CTRL">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="F:高子奇.键盘按键.ALT">
+            <summary>
+            键盘特殊按键
+            </summary>
+        </member>
+        <member name="P:高子奇.键盘按键.输出命令">
+            <summary>
+            <para>特殊按键命令</para>
+            <para>例如 按下回车键 ：输出命令=键盘按键.回车键;</para>
+            <para>例如 按下CTRL+C组合键 ：输出命令=键盘按键.CTRL+"c";</para>
+            </summary>
+        </member>
+    </members>
+</doc>

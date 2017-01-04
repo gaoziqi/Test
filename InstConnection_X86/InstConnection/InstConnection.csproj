@@ -48,6 +48,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="键鼠操作">
+      <HintPath>..\..\..\键鼠操作\键鼠操作\bin\Debug\键鼠操作.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">

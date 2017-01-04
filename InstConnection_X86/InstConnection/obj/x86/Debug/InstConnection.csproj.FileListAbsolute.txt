@@ -63,3 +63,6 @@ E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\InstConnection.Form4.res
 E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\InstConnection.Properties.Resources.resources
 E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\GenerateResource.read.1.tlog
 E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\GenerateResource.write.1.tlog
+E:\Test\InstConnection_X86\InstConnection\bin\Debug\键鼠操作.dll
+E:\Test\InstConnection_X86\InstConnection\bin\Debug\键鼠操作.pdb
+E:\Test\InstConnection_X86\InstConnection\bin\Debug\键鼠操作.xml
