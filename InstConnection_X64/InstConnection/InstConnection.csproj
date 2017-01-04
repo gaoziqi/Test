@@ -48,6 +48,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="控件大小调整">
+      <HintPath>..\..\..\..\库\类库\控件大小调整\控件大小调整\bin\Debug\控件大小调整.dll</HintPath>
+    </Reference>
+    <Reference Include="键鼠操作">
+      <HintPath>..\..\..\..\库\类库\键鼠操作\键鼠操作\bin\Debug\键鼠操作.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">

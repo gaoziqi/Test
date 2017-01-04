@@ -79,13 +79,13 @@ namespace InstConnection
         //图片显示框
         Dictionary<string, 设备> pic = new Dictionary<string, 设备>();
 
-
         public Form4()
         {
             InitializeComponent();
             画笔 = new Pen(Color.Blue, 10);
             画笔.DashStyle = DashStyle.Solid;//定义线条的样式
 
+            panel1.MouseWheel+=new MouseEventHandler(panel1_MouseWheel);
             //获取路径下所有图片
             DirectoryInfo di1 = new DirectoryInfo(@"附件及电缆");
             DirectoryInfo di2 = new DirectoryInfo(@"测试设备");
@@ -183,6 +183,34 @@ namespace InstConnection
 
         }
 
+        double 当前缩放倍数 = 1.0;
+        void panel1_MouseWheel(object sender, MouseEventArgs e)
+        {
+            Panel p = sender as Panel; 
+            if (e.Delta > 0)
+            {
+                缩放设备(2);
+            }
+            else
+            {
+                缩放设备(0.5);
+            }
+        }
+
+        public void 缩放设备(double 倍数)
+        {
+            foreach (string k1 in pic.Keys)
+            {
+                Size old = pic[k1].Size;
+                pic[k1].Size = new Size((int)(pic[k1].Size.Width * 倍数), 
+                    (int)(pic[k1].Size.Height * 倍数));
+                old -=pic[k1].Size;
+                if(pic[k1].连接设备==null)
+                    pic[k1].Location += new Size((int)(old.Width/2.0),(int)(old.Height/2.0));
+            }
+            当前缩放倍数 *= 倍数;
+        }
+
         /// <summary>
         /// 列表窗口
         /// 
@@ -206,8 +234,8 @@ namespace InstConnection
             {
                 temppic.Visible = false;
                 temppic.SizeMode = PictureBoxSizeMode.StretchImage;
-                temppic.Width = temppic.Image.Width;
-                temppic.Height = temppic.Image.Height;
+                temppic.Width = (int)(temppic.Image.Width * 当前缩放倍数);
+                temppic.Height = (int)(temppic.Image.Height * 当前缩放倍数);
                 //panel1.
                 temppic.Parent = panel1;
                 //this.Controls.Add(temppic);   //添加到窗体
@@ -218,8 +246,6 @@ namespace InstConnection
 
         public void 显示设备(设备 sb, Point center)
         {
-            show("添加 " + sb.Name);
-
             sb.Left = center.X - sb.Width / 2;
             sb.Top = center.Y - sb.Height / 2;
 
@@ -229,7 +255,7 @@ namespace InstConnection
             sb.MouseDown += new System.Windows.Forms.MouseEventHandler(pic_MouseDown);
             sb.MouseMove += new System.Windows.Forms.MouseEventHandler(pic_MouseMove);
             sb.MouseClick += new System.Windows.Forms.MouseEventHandler(pic_MouseClick);
-            sb.MouseWheel += new System.Windows.Forms.MouseEventHandler(pic_MouseWheel);
+            sb.MouseUp += new System.Windows.Forms.MouseEventHandler(pic_MouseUp);
             if (sb.类型 == 设备.接口头)
                 sb.Paint += new System.Windows.Forms.PaintEventHandler(pic_Paint);
         }
@@ -329,19 +355,95 @@ namespace InstConnection
         int mouseY;
         int picX;
         int picY;
-        int picRatio;
+        string picName = "";
 
-
-
-        private void pic_MouseDown(object sender,MouseEventArgs e)
+        模拟鼠标操作 鼠标 = new 模拟鼠标操作();
+        private void pic_MouseUp(object sender, MouseEventArgs e)
         {
-            PictureBox picbox = (PictureBox)sender;
-            show("移动 " + picbox.Name);
-            picbox.BringToFront();
-            mouseX = Cursor.Position.X;
-            mouseY = Cursor.Position.Y;
-            picX = picbox.Left;
-            picY = picbox.Top;
+            if (e.Button == MouseButtons.Left)
+            {
+                设备 picbox = (设备)sender;
+                picName = "";
+                if (connectKey != "" && picbox.类型 == 设备.接口头)
+                {
+                    if (connectState == 1)
+                    {
+                        picbox.SendToBack();
+                        鼠标.模拟鼠标_Click(模拟鼠标操作.鼠标.左键, 鼠标.鼠标位置);
+                        connectState++;
+                    }
+                    else
+                    {
+                        connectState = 0;
+                        pic[connectKey].BorderStyle = BorderStyle.None;
+                        connectKey = "";
+                    }
+                }
+                else if (connectKey!="" && connectState == 2 && picbox.类型 == 设备.部件)
+                {
+                    设备 线缆 = pic[connectKey];
+                    设备 部件 = picbox;
+                    int 线缆类型 = 0;
+                    bool connect = false;
+                    foreach (接口 ii in pic[线缆.groupName]._接口)
+                    {
+                        if (ii.图像地址 == 线缆.name)
+                            线缆类型 = ii.类型;
+                    }
+                    foreach (接口 ii in 部件._接口)
+                    {
+                        if (ii.类型 == 线缆类型)
+                        {
+                            if (ii.connectName != "")
+                            {
+                                show("错误 " + picbox.Name + " 和 " + pic[connectKey].name + " 接口已占用,不能连接");
+                                connectKey = "";
+                                return;
+                            }
+                            ii.connectName = 线缆.Name;
+                            线缆.连接设备位置 = ii.位置;
+                            connect = true;
+                            break;
+                        }
+                    }
+                    if (connect)
+                    {
+                        show(picbox.Name + " 和 " + pic[connectKey].name + " 连接成功");
+                        线缆.连接设备 = 部件;
+                        线缆.Parent = 部件;
+                        线缆.Location = new Point((int)(部件.Size.Width * 线缆.连接设备位置.X), (int)(部件.Size.Height * 线缆.连接设备位置.Y));
+                        重新计算中点(线缆.groupName);
+                    }
+                    else
+                        show("错误 " + picbox.Name + " 和 " + pic[connectKey].name + " 接口不符,不能连接");
+                    connectState = 0;
+                    pic[connectKey].BorderStyle = BorderStyle.None;
+                    connectKey = "";
+                }
+            }
+        }
+
+        private void pic_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                设备 picbox = (设备)sender;
+                if (picbox.连接设备 != null)
+                    return;
+                mouseX = Cursor.Position.X;
+                mouseY = Cursor.Position.Y;
+                picX = picbox.Left;
+                picY = picbox.Top;
+                picName = picbox.Name;
+                if (connectState == 0 && picbox.类型 == 设备.接口头)
+                {
+                    picbox.BringToFront();
+                    picbox.BorderStyle = BorderStyle.Fixed3D;
+                    connectKey = picbox.Name;
+                    connectState++;
+                }
+            }
+
         }
 
         void 重新计算中点(string groupName)
@@ -375,15 +477,15 @@ namespace InstConnection
 
         private void pic_MouseMove(object sender, MouseEventArgs e)
         {
-            设备 picbox=(设备)sender;
-            if (picbox.连接设备 != null)
-                return;
-            int y = Cursor.Position.Y - mouseY + picY;
-            int x = Cursor.Position.X - mouseX + picX;
             if (e.Button == MouseButtons.Left)
             {
-                picbox.Top = y;
-                picbox.Left = x;
+                设备 picbox = (设备)sender;
+                if (picbox.连接设备 != null)
+                    return;
+                if (picbox.Name != picName)
+                    return;
+                picbox.Top = Cursor.Position.Y - mouseY + picY;
+                picbox.Left = Cursor.Position.X - mouseX + picX;
                 if (picbox.类型 == 设备.部件)
                 {
                     foreach (接口 ii in picbox._接口)
@@ -397,31 +499,10 @@ namespace InstConnection
                 else if (picbox.类型 == 设备.接口头)
                 {
                     重新计算中点(picbox.groupName);
-                    
                 }
             }
         }
-        private void pic_MouseWheel(object sender, MouseEventArgs e)
-        {
-            PictureBox picbox = (PictureBox)sender;
-            picRatio = picbox.Width / picbox.Height;
 
-            int wheelspeed = e.Delta / 5;  //设置滚轮速度
-
-
-            //if (picbox.Width < 30) 
-            if (picbox.Height < 30)
-            {
-                picbox.Height = 30;
-                picbox.Width = 30 * picRatio;
-            }
-
-            picbox.Width += wheelspeed;
-            picbox.Height += wheelspeed/picRatio;
-
-            picbox.Top -= wheelspeed /(2* picRatio);
-            picbox.Left -= wheelspeed / 2;
-        }
 
         public void 移除设备(string name)
         {
@@ -459,6 +540,7 @@ namespace InstConnection
         }
 
         string connectKey = "";
+        int connectState=0;//0接入之前，1第一次接入
 
         [DllImport("user32")]
         private static extern int SendMessage(IntPtr hwnd, int wMsg, int wParam, IntPtr lParam);
@@ -487,73 +569,7 @@ namespace InstConnection
                     panel1.Invalidate();
                 }          
             }
-            if (e.Button == MouseButtons.Left)
-            {
-                if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
-                {
-                    if (connectKey == "")
-                    {
-                        picbox.BorderStyle = BorderStyle.Fixed3D;
-                        connectKey = picbox.Name;
-                    }
-                    else
-                    {
-                        设备 线缆;
-                        设备 部件;
-                        pic[connectKey].BorderStyle = BorderStyle.None;
-                        if (picbox.groupName == "" && pic[connectKey].groupName != "")
-                        {
-                            部件 = picbox;
-                            线缆 = pic[connectKey];
-                        }
-                        else if (picbox.groupName == "" && pic[connectKey].groupName != "")
-                        {
-                            线缆 = picbox;
-                            部件 = pic[connectKey];
-                        }
-                        else
-                        {
-                            show("错误 " + picbox.Name + " 和 " + pic[connectKey].name + " 同类型,不能连接");
-                            connectKey = "";
-                            return;
-                        }
-                        int 线缆类型=0;
-                        bool connect=false;
-                        foreach (接口 ii in pic[线缆.groupName]._接口)
-                        {
-                            if(ii.图像地址 == 线缆.name)
-                                线缆类型 = ii.类型;
-                        }
-                        foreach (接口 ii in 部件._接口)
-                        {
-                            if (ii.类型 == 线缆类型)
-                            {
-                                if (ii.connectName!="")
-                                {
-                                    show("错误 " + picbox.Name + " 和 " + pic[connectKey].name + " 接口已占用,不能连接");
-                                    connectKey = "";
-                                    return;
-                                }
-                                ii.connectName = 线缆.Name;
-                                线缆.连接设备位置 = ii.位置;
-                                connect = true;
-                                break;
-                            }
-                        }
-                        if (connect)
-                        {
-                            show(picbox.Name + " 和 " + pic[connectKey].name + " 连接成功");
-                            线缆.连接设备 = 部件;
-                            线缆.Parent = 部件;
-                            线缆.Location = new Point((int)(部件.Size.Width * 线缆.连接设备位置.X), (int)(部件.Size.Height * 线缆.连接设备位置.Y));
-                            重新计算中点(线缆.groupName);
-                        }
-                        else
-                            show("错误 " + picbox.Name + " 和 " + pic[connectKey].name + " 接口不符,不能连接");
-                        connectKey = "";
-                    }          
-                }
-            }
+            
         }
 
         public Pen 画笔;
@@ -587,9 +603,7 @@ namespace InstConnection
                 }
                 else
                     g.DrawLine(p, new Point(pic1.Location.X + (int)pic1.Size.Width / 2, pic1.Location.Y + (int)pic1.Size.Height / 2), point);
-
-                
-
+           
                 g.Dispose();
                 p.Dispose();
             }
@@ -598,7 +612,7 @@ namespace InstConnection
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
             //this.Refresh();
-
+            show(connectState.ToString());
             Panel panel = (Panel)sender;
             Pen p = (Pen)画笔.Clone();
             Graphics g = Graphics.FromHwnd(panel.Handle);
@@ -622,14 +636,6 @@ namespace InstConnection
             }
             g.Dispose();
             p.Dispose();
-        }
-
-        private void panel1_MouseClick(object sender, MouseEventArgs e)
-        {
-            foreach(var pp in pic)
-            {
-                pp.Value.BorderStyle = BorderStyle.None;
-            }
         }
     }
 }
