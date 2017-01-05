@@ -197,18 +197,60 @@ namespace InstConnection
             }
         }
 
+        public Size SP_缩放(Size s, double 倍数)
+        {
+            return new Size((int)(s.Width * 倍数), (int)(s.Height * 倍数));
+        }
+
+        public Point SP_缩放(Point s, double 倍数)
+        {
+            return new Point((int)(s.X * 倍数), (int)(s.Y * 倍数));
+        }
+
         public void 缩放设备(double 倍数)
         {
             foreach (string k1 in pic.Keys)
             {
                 Size old = pic[k1].Size;
-                pic[k1].Size = new Size((int)(pic[k1].Size.Width * 倍数), 
-                    (int)(pic[k1].Size.Height * 倍数));
-                old -=pic[k1].Size;
-                if(pic[k1].连接设备==null)
-                    pic[k1].Location += new Size((int)(old.Width/2.0),(int)(old.Height/2.0));
+                pic[k1].Size = SP_缩放(pic[k1].Size, 倍数);
+                old -= pic[k1].Size;
+                pic[k1].groupCenter = SP_缩放(pic[k1].groupCenter, 倍数);
+                pic[k1].Location = SP_缩放(pic[k1].Location, 倍数);
             }
+            Padding p = Panel1自适应(SP_缩放(panel1.Location, 倍数), SP_缩放(panel1.Size, 倍数));
+            panel1.Size = p.Size;
+            panel1.Location = new Point(p.Left,p.Top);
+            
             当前缩放倍数 *= 倍数;
+        }
+
+        public Padding Panel1自适应(Point Location, Size Size, bool mode = true)
+        {
+            Padding result = new Padding();
+            if (Location.X > -2 && Location.Y > -2)
+                Location = new Point(-2, -2);
+            else if (Location.Y > -2)
+                Location = new Point(panel1.Location.X, -2);
+            else if (Location.X > -2)
+                Location = new Point(-2, Location.Y);
+            int x = Location.X + Size.Width - panel2.Width + 2;
+            int y = Location.Y + Size.Height - panel2.Height + 2;
+            Size s = new Size(0, 0);
+            if (x < 0 && y < 0)
+                s += new Size(-x, -y);
+            else if (y < 0)
+                s += new Size(0, -y);
+            else if (x < 0)
+                s += new Size(-x, 0);
+            if (mode)
+                Size += s;
+            else
+                Location += s;
+            result.Top = Location.Y;
+            result.Left = Location.X;
+            result.Bottom = Location.Y + Size.Height;
+            result.Right = Location.X + Size.Width;
+            return result;
         }
 
         /// <summary>
@@ -612,6 +654,7 @@ namespace InstConnection
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
             //this.Refresh();
+            this.panel1.Focus();
             show(connectState.ToString());
             Panel panel = (Panel)sender;
             Pen p = (Pen)画笔.Clone();
@@ -636,6 +679,23 @@ namespace InstConnection
             }
             g.Dispose();
             p.Dispose();
+        }
+
+        private void panel1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Middle) 
+            {
+                Point p = Control.MousePosition;
+                p.Offset(panel1XY.X, panel1XY.Y);               
+                Padding p1 = Panel1自适应(this.PointToClient(p), panel1.Size, false);
+                panel1.Location = new Point(p1.Left,p1.Top);
+            }
+        }
+
+        private Point panel1XY;
+        private void panel1_MouseDown(object sender, MouseEventArgs e)
+        {
+            panel1XY = new Point(-e.X, -e.Y);
         }
     }
 }
