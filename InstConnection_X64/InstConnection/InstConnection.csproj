@@ -40,6 +40,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.103.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\System.Data.SQLite\2010\bin\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,9 +52,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="控件大小调整">
-      <HintPath>..\..\..\..\库\类库\控件大小调整\控件大小调整\bin\Debug\控件大小调整.dll</HintPath>
-    </Reference>
     <Reference Include="键鼠操作">
       <HintPath>..\..\..\..\库\类库\键鼠操作\键鼠操作\bin\Debug\键鼠操作.dll</HintPath>
     </Reference>

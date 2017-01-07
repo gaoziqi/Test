@@ -47,19 +47,20 @@ namespace InstConnection
             public Collection<接口> _接口 = new Collection<接口>();
             //线缆属性
             public Point groupCenter;
+            public string colorName;
             //接口头属性
             public string groupName;
             public 设备 连接设备;
             public PointF 连接设备位置;
-            public 设备(string name, string groupName = "")
+            public 设备(SQLiteDBHelper db,string name, string groupName = "")
             {
                 base.Name = name;
                 this.name = name;
-                SQLiteDBHelper db = new SQLiteDBHelper(@"sql.db");
                 DataTable dt = sqlite_gzq.SelectData(db, "interface", "name", name);
                 if (dt.Rows.Count>0)
                 {
                     this.类型 = Convert.ToInt32(dt.Rows[0]["type"]);
+                    this.colorName = dt.Rows[0]["remark"].ToString();
                     foreach (DataRow row in dt.Rows)
                         _接口.Add(new 接口(Convert.ToInt32(row["interface_type"]), Convert.ToSingle(row["position_x"]), Convert.ToSingle(row["position_y"]), row["picture_url"].ToString()));
                 }
@@ -78,6 +79,11 @@ namespace InstConnection
 
         //图片显示框
         Dictionary<string, 设备> pic = new Dictionary<string, 设备>();
+
+        SQLiteDBHelper db = new SQLiteDBHelper(@"sql.db");
+
+        //表名
+        String t_Name = "ceshi1";
 
         public Form4()
         {
@@ -327,7 +333,7 @@ namespace InstConnection
             formPoint.X -= panel1.Location.X;
             formPoint.Y -= panel1.Location.Y;
 
-            设备 temppic = new 设备(SelectedItems[0].Text);
+            设备 temppic = new 设备(db,SelectedItems[0].Text);
             if (temppic.类型 == 设备.部件)
             {
                 temppic.Image = Image.FromFile(SelectedItems[0].Name);
@@ -338,7 +344,7 @@ namespace InstConnection
                 添加设备(temppic, false);
                 foreach (接口 ii in temppic._接口)
                 {
-                    设备 temppic1 = new 设备(ii.图像地址, temppic.Name);
+                    设备 temppic1 = new 设备(db,ii.图像地址, temppic.Name);
                     temppic1.Image = Image.FromFile(ii.图像地址);
                     添加设备(temppic1);
                 }
@@ -622,6 +628,7 @@ namespace InstConnection
             if (pic1.连接设备 != null)
             {
                 Pen p = (Pen)画笔.Clone();
+                p.Color = Color.FromName(pic[pic1.groupName].colorName);
                 Graphics g = Graphics.FromHwnd(pic1.连接设备.Handle);
                 Point point = pic[pic1.groupName].groupCenter;
                 point.X -= pic1.连接设备.Location.X;
@@ -632,7 +639,7 @@ namespace InstConnection
                     {
                         if (pic[k].groupName == pic1.groupName)
                         {
-                            if (pic[k].连接设备==null)
+                            if (pic[k].连接设备 == null)
                                 g.DrawLine(p,
                                 new Point(pic[k].Location.X - pic1.连接设备.Location.X + (int)pic[k].Size.Width / 2,
                                     pic[k].Location.Y - pic1.连接设备.Location.Y + (int)pic[k].Size.Height / 2), point);
@@ -643,9 +650,9 @@ namespace InstConnection
                         }
                     }
                 }
-                else
+                else  
                     g.DrawLine(p, new Point(pic1.Location.X + (int)pic1.Size.Width / 2, pic1.Location.Y + (int)pic1.Size.Height / 2), point);
-           
+
                 g.Dispose();
                 p.Dispose();
             }
@@ -674,6 +681,7 @@ namespace InstConnection
                         point.X += pic[k].连接设备.Location.X;
                         point.Y += pic[k].连接设备.Location.Y;
                     }
+                    p.Color = Color.FromName(pic[pic[k].groupName].colorName);
                     g.DrawLine(p, point, pic[pic[k].groupName].groupCenter);
                 }
             }
@@ -696,6 +704,183 @@ namespace InstConnection
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
             panel1XY = new Point(-e.X, -e.Y);
+        }
+
+        //匹配
+        public class check设备
+        {
+            public string realname;
+            public string name;
+            public string connectrealname;
+            public check设备(string realname, string name, string connectrealname)
+            {
+                this.realname = realname;
+                this.name = name;
+                this.connectrealname = connectrealname;
+            }
+        }
+        List<check设备> checklist = new List<check设备>();
+        Dictionary<check设备, string> check = new Dictionary<check设备, string>();
+        Dictionary<string, bool> check_used = new Dictionary<string, bool>();
+        private bool check_match()
+        {
+            string str = "";
+            foreach (string k in check_used.Keys)
+            {
+                if (!check_used[k])
+                {
+                    str = k;
+                    break;
+                }
+            }
+            if (str == "")
+                return true;
+            foreach (check设备 k in checklist)
+            {
+                //类型相同
+                if (check[k] == "" && k.name == pic[str].name)
+                {
+                    //无连接设备
+                    if (k.connectrealname == "")
+                    {
+                        if (pic[str].连接设备 != null)
+                            continue;
+                        check[k] = str;
+                        check_used[str] = true;
+                        if (check_match())
+                            return true;
+                        check[k] = "";
+                        check_used[str] = false;
+                    }
+                    //有连接设备
+                    else
+                    {
+                        if (pic[str].连接设备 == null)
+                            continue;
+                        foreach (check设备 k1 in checklist)
+                        {
+                            if (k1.realname == k.connectrealname)
+                            {
+                                //check未匹配
+                                if (check[k1] == "")
+                                {
+                                    check[k] = str;
+                                    check_used[str] = true;
+                                    check[k1] = pic[str].连接设备.Name;
+                                    check_used[pic[str].连接设备.Name] = true;
+                                    if (check_match())
+                                        return true;
+                                    check[k] = "";
+                                    check_used[str] = false;
+                                    check[k1] = "";
+                                    check_used[pic[str].连接设备.Name] = false;
+                                }
+                                //check已匹配
+                                else
+                                {
+                                    if (check[k1] == pic[str].连接设备.Name)
+                                    {
+                                        check[k] = str;
+                                        check_used[str] = true;
+                                        if (check_match())
+                                            return true;
+                                        check[k] = "";
+                                        check_used[str] = false;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //清空
+            checklist.Clear(); check.Clear(); check_used.Clear();
+            List<string> type_name = new List<string>();
+            Dictionary<string, int> type_num = new Dictionary<string, int>();
+            foreach (string k in pic.Keys)
+            {
+                if (!type_name.Contains(pic[k].name))
+                {
+                    type_name.Add(pic[k].name);
+                    DataTable dt = sqlite_gzq.SelectData(db, t_Name, "name", pic[k].name);
+                    type_num.Add(pic[k].name, dt.Rows.Count - 1);
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        check设备 t = new check设备
+                            (row["realname"].ToString(),
+                            row["name"].ToString(),
+                            row["connectrealname"].ToString());
+                        checklist.Add(t);
+                        check.Add(t, "");
+                    }
+                }
+                else
+                {
+                    type_num[pic[k].name]--;
+                }
+                if(type_num[pic[k].name]<0)
+                {
+                    MessageBox.Show("错误："+pic[k].name+"数量过多");
+                    return;
+                }
+                check_used.Add(pic[k].Name, false);
+            }
+            if (pic.Count!=sqlite_gzq.ReadData(db, t_Name).Rows.Count)
+            {
+                MessageBox.Show("错误：设备或线缆数量不正确");
+                return;
+            }
+            if(check_match())
+                MessageBox.Show("恭喜连接正确");
+            else
+                MessageBox.Show("错误：连接方式不正确");
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            String sql = String.Format(@"Drop table if exists '{0}';
+                CREATE TABLE '{0}'(
+                'realname' CHAR(50), 
+                'name' CHAR(50), 
+                'type' SMALLINT,
+                'connectrealname' CHAR(50),
+                'connectname' CHAR(50), 
+                'remark' TEXT);", t_Name);
+            try
+            {
+                db.ExecuteNonQuery(sql, null);
+                foreach (string k in pic.Keys)
+                {
+                    sql=@"Insert into '{0}' values ('{1}','{2}',{3},'{4}','{5}','{6}')";
+                    if(pic[k].类型 == 设备.部件)
+                    {
+                        sql=String.Format(sql, t_Name, pic[k].Name, pic[k].name, pic[k].类型, null, null,null);
+                    }
+                    else if(pic[k].类型 == 设备.接口头)
+                    {
+                        if(pic[k].连接设备==null)
+                            sql=String.Format(sql, t_Name, pic[k].Name, pic[k].name, pic[k].类型, null, null,null);
+                        else
+                            sql = String.Format(sql, t_Name, pic[k].Name, pic[k].name, pic[k].类型, pic[k].连接设备.Name, pic[k].连接设备.name, null);
+                    }
+                    else if(pic[k].类型 == 设备.线缆)
+                    {
+                        sql = String.Format(sql, t_Name, pic[k].Name, pic[k].name, pic[k].类型, null, null, null);
+                    }
+                    db.ExecuteNonQuery(sql, null);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("数据库异常，保存失败");
+            }
         }
     }
 }
