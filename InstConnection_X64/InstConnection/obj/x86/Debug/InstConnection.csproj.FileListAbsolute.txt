@@ -42,3 +42,5 @@ D:\E盘\vs2010\csharp\Test\InstConnection_X64\InstConnection\obj\x86\Debug\InstC
 D:\E盘\vs2010\csharp\Test\InstConnection_X64\InstConnection\bin\Debug\键鼠操作.dll
 D:\E盘\vs2010\csharp\Test\InstConnection_X64\InstConnection\bin\Debug\键鼠操作.pdb
 D:\E盘\vs2010\csharp\Test\InstConnection_X64\InstConnection\bin\Debug\键鼠操作.xml
+D:\E盘\vs2010\csharp\Test\InstConnection_X64\InstConnection\bin\Debug\xmlTree.dll
+D:\E盘\vs2010\csharp\Test\InstConnection_X64\InstConnection\bin\Debug\xmlTree.pdb

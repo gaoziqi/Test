@@ -52,6 +52,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="xmlTree">
+      <HintPath>..\..\..\..\库\类库\xmlTree\bin\Debug\xmlTree.dll</HintPath>
+    </Reference>
     <Reference Include="键鼠操作">
       <HintPath>..\..\..\..\库\类库\键鼠操作\键鼠操作\bin\Debug\键鼠操作.dll</HintPath>
     </Reference>
