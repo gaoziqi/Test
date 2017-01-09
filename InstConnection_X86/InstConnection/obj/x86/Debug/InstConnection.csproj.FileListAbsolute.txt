@@ -66,3 +66,5 @@ E:\Test\InstConnection_X86\InstConnection\obj\x86\Debug\GenerateResource.write.1
 E:\Test\InstConnection_X86\InstConnection\bin\Debug\键鼠操作.dll
 E:\Test\InstConnection_X86\InstConnection\bin\Debug\键鼠操作.pdb
 E:\Test\InstConnection_X86\InstConnection\bin\Debug\键鼠操作.xml
+E:\Test\InstConnection_X86\InstConnection\bin\Debug\xmlTree.dll
+E:\Test\InstConnection_X86\InstConnection\bin\Debug\xmlTree.pdb

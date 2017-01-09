@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using 高子奇;
 
 namespace InstConnection
 {
@@ -14,6 +15,7 @@ namespace InstConnection
         public Form3()
         {
             InitializeComponent();
+            treeView1.LoadXml(@"科目列表/test2.xml");
         }
 
         private void button2_Click(object sender, EventArgs e)
