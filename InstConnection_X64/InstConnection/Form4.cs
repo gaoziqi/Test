@@ -43,6 +43,7 @@ namespace InstConnection
 
             public int 类型;
             public string name;
+            public Size origin;
             //部件属性
             public Collection<接口> _接口 = new Collection<接口>();
             //线缆属性
@@ -69,6 +70,7 @@ namespace InstConnection
                 this.groupCenter = new Point();
                 this.连接设备 = null;
                 this.BackColor = Color.Transparent;
+                this.origin = this.Size;
             }
         }
 
@@ -84,7 +86,11 @@ namespace InstConnection
 
         //表名
         String t_Name = "ceshi1";
-
+        
+        //缩放
+        Size origin_panel1;
+        double[] 缩放倍数=new double[]{0.5,1,2};
+        int 当前倍数 = 1;
         public Form4()
         {
             InitializeComponent();
@@ -96,7 +102,7 @@ namespace InstConnection
             DirectoryInfo di1 = new DirectoryInfo(@"附件及电缆");
             DirectoryInfo di2 = new DirectoryInfo(@"测试设备");
             DirectoryInfo di3 = new DirectoryInfo(@"机载设备");
-
+            origin_panel1 = panel1.Size;
 
             int imagelistindex = 0;
 
@@ -195,11 +201,19 @@ namespace InstConnection
             Panel p = sender as Panel; 
             if (e.Delta > 0)
             {
-                缩放设备(2);
+                当前倍数++;
+                if (当前倍数 < 缩放倍数.Length)
+                    缩放设备(缩放倍数[当前倍数]);
+                else
+                    当前倍数 = 缩放倍数.Length-1;
             }
             else
             {
-                缩放设备(0.5);
+                当前倍数--;
+                if (当前倍数 > -1)
+                    缩放设备(缩放倍数[当前倍数]);
+                else
+                    当前倍数 = 0;
             }
         }
 
@@ -218,14 +232,13 @@ namespace InstConnection
             foreach (string k1 in pic.Keys)
             {
                 Size old = pic[k1].Size;
-                pic[k1].Size = SP_缩放(pic[k1].Size, 倍数);
+                pic[k1].Size = SP_缩放(pic[k1].origin, 倍数);
                 old -= pic[k1].Size;
                 pic[k1].groupCenter = SP_缩放(pic[k1].groupCenter, 倍数);
                 pic[k1].Location = SP_缩放(pic[k1].Location, 倍数);
             }
-            Padding p = Panel1自适应(SP_缩放(panel1.Location, 倍数), SP_缩放(panel1.Size, 倍数));
-            panel1.Size = p.Size;
-            panel1.Location = new Point(p.Left,p.Top);
+            //Padding p = Panel1自适应(SP_缩放(panel1.Location, 倍数), SP_缩放(origin_panel1, 倍数));
+            //panel1.Size = p.Size;
             
             当前缩放倍数 *= 倍数;
         }
@@ -284,6 +297,7 @@ namespace InstConnection
                 temppic.SizeMode = PictureBoxSizeMode.StretchImage;
                 temppic.Width = (int)(temppic.Image.Width * 当前缩放倍数);
                 temppic.Height = (int)(temppic.Image.Height * 当前缩放倍数);
+                temppic.origin = temppic.Size;
                 //panel1.
                 temppic.Parent = panel1;
                 //this.Controls.Add(temppic);   //添加到窗体
@@ -691,10 +705,10 @@ namespace InstConnection
 
         private void panel1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Middle) 
+            if (e.Button == MouseButtons.Left&& ModifierKeys==Keys.Control) 
             {
                 Point p = Control.MousePosition;
-                p.Offset(panel1XY.X, panel1XY.Y);               
+                p.Offset(panel1XY.X - panel2.Location.X, panel1XY.Y - panel2.Location.Y);
                 Padding p1 = Panel1自适应(this.PointToClient(p), panel1.Size, false);
                 panel1.Location = new Point(p1.Left,p1.Top);
             }
@@ -703,7 +717,10 @@ namespace InstConnection
         private Point panel1XY;
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
-            panel1XY = new Point(-e.X, -e.Y);
+            if (e.Button == MouseButtons.Left && ModifierKeys == Keys.Control)
+            {
+                panel1XY = new Point(-e.X, -e.Y);
+            }
         }
 
         //匹配
