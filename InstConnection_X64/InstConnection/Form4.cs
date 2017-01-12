@@ -89,20 +89,20 @@ namespace InstConnection
         
         //缩放
         Size origin_panel1;
-        double[] 缩放倍数=new double[]{0.5,1,2};
+        double[] 缩放倍数=new double[]{0.4, 0.5, 0.6};
         int 当前倍数 = 1;
+        int 之前倍数 = 1;
         public Form4()
         {
             InitializeComponent();
             画笔 = new Pen(Color.Blue, 10);
             画笔.DashStyle = DashStyle.Solid;//定义线条的样式
-
+            origin_panel1 = panel1.Size;
             panel1.MouseWheel+=new MouseEventHandler(panel1_MouseWheel);
             //获取路径下所有图片
             DirectoryInfo di1 = new DirectoryInfo(@"附件及电缆");
             DirectoryInfo di2 = new DirectoryInfo(@"测试设备");
             DirectoryInfo di3 = new DirectoryInfo(@"机载设备");
-            origin_panel1 = panel1.Size;
 
             int imagelistindex = 0;
 
@@ -195,7 +195,6 @@ namespace InstConnection
 
         }
 
-        double 当前缩放倍数 = 1.0;
         void panel1_MouseWheel(object sender, MouseEventArgs e)
         {
             Panel p = sender as Panel; 
@@ -206,6 +205,7 @@ namespace InstConnection
                     缩放设备(缩放倍数[当前倍数]);
                 else
                     当前倍数 = 缩放倍数.Length-1;
+                之前倍数 = 当前倍数;
             }
             else
             {
@@ -214,6 +214,7 @@ namespace InstConnection
                     缩放设备(缩放倍数[当前倍数]);
                 else
                     当前倍数 = 0;
+                之前倍数 = 当前倍数;
             }
         }
 
@@ -224,23 +225,20 @@ namespace InstConnection
 
         public Point SP_缩放(Point s, double 倍数)
         {
-            return new Point((int)(s.X * 倍数), (int)(s.Y * 倍数));
+            return new Point((int)((s.X + panel1.Location.X) * 倍数) - panel1.Location.X,
+                (int)((s.Y + panel1.Location.Y) * 倍数) - panel1.Location.Y);
+            //return new Point((int)(s.X * 倍数), (int)(s.Y * 倍数));
         }
 
         public void 缩放设备(double 倍数)
         {
             foreach (string k1 in pic.Keys)
             {
-                Size old = pic[k1].Size;
                 pic[k1].Size = SP_缩放(pic[k1].origin, 倍数);
-                old -= pic[k1].Size;
-                pic[k1].groupCenter = SP_缩放(pic[k1].groupCenter, 倍数);
-                pic[k1].Location = SP_缩放(pic[k1].Location, 倍数);
+                double t = 倍数 / 缩放倍数[之前倍数];
+                pic[k1].groupCenter = SP_缩放(pic[k1].groupCenter, t);
+                pic[k1].Location = SP_缩放(pic[k1].Location, t);
             }
-            //Padding p = Panel1自适应(SP_缩放(panel1.Location, 倍数), SP_缩放(origin_panel1, 倍数));
-            //panel1.Size = p.Size;
-            
-            当前缩放倍数 *= 倍数;
         }
 
         public Padding Panel1自适应(Point Location, Size Size, bool mode = true)
@@ -295,9 +293,9 @@ namespace InstConnection
             {
                 temppic.Visible = false;
                 temppic.SizeMode = PictureBoxSizeMode.StretchImage;
-                temppic.Width = (int)(temppic.Image.Width * 当前缩放倍数);
-                temppic.Height = (int)(temppic.Image.Height * 当前缩放倍数);
-                temppic.origin = temppic.Size;
+                temppic.origin = new Size(temppic.Image.Width, temppic.Image.Height);
+                temppic.Width = (int)(temppic.origin.Width * 缩放倍数[当前倍数]);
+                temppic.Height = (int)(temppic.origin.Height * 缩放倍数[当前倍数]);
                 //panel1.
                 temppic.Parent = panel1;
                 //this.Controls.Add(temppic);   //添加到窗体
@@ -364,14 +362,7 @@ namespace InstConnection
                 }
             }
 
-            int i = 0;
-            string str = SelectedItems[0].Text + i;
-            while (pic.ContainsKey(str))
-            {
-                str = SelectedItems[0].Text + ++i;
-            }
-
-            string dragname = SelectedItems[0].Text + --i;
+            string dragname = temppic.Name;
 
             try
             {
@@ -397,7 +388,7 @@ namespace InstConnection
                     centers[0].Y = formPoint.Y;
                     centers[1].Y = formPoint.Y;
                 }
-                i = 0;
+                int i = 0;
                 foreach (string k in pic.Keys)
                 {
                     if (pic[k].groupName == dragname)

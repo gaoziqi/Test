@@ -82,9 +82,9 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.panel1.Location = new System.Drawing.Point(-400, -400);
+            this.panel1.Location = new System.Drawing.Point(-1000, -1000);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1200, 1200);
+            this.panel1.Size = new System.Drawing.Size(2200, 2200);
             this.panel1.TabIndex = 5;
             this.panel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.panel1_DragDrop);
             this.panel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.panel1_DragEnter);
