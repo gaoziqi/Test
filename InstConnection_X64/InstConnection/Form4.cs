@@ -225,8 +225,13 @@ namespace InstConnection
 
         public Point SP_缩放(Point s, double 倍数)
         {
-            return new Point((int)((s.X + panel1.Location.X) * 倍数) - panel1.Location.X,
-                (int)((s.Y + panel1.Location.Y) * 倍数) - panel1.Location.Y);
+            return new Point((int)(s.X * 倍数), (int)(s.Y * 倍数));
+        }
+
+        public Point SP_缩放(Point s, Point Location ,double 倍数)
+        {
+            return new Point((int)((s.X + Location.X) * 倍数) - Location.X,
+                (int)((s.Y + Location.Y) * 倍数) - Location.Y);
             //return new Point((int)(s.X * 倍数), (int)(s.Y * 倍数));
         }
 
@@ -236,8 +241,20 @@ namespace InstConnection
             {
                 pic[k1].Size = SP_缩放(pic[k1].origin, 倍数);
                 double t = 倍数 / 缩放倍数[之前倍数];
-                pic[k1].groupCenter = SP_缩放(pic[k1].groupCenter, t);
-                pic[k1].Location = SP_缩放(pic[k1].Location, t);
+                if (pic[k1].Parent == panel1)
+                {
+                    pic[k1].groupCenter = SP_缩放(pic[k1].groupCenter, pic[k1].Parent.Location, t);
+                    pic[k1].Location = SP_缩放(pic[k1].Location, pic[k1].Parent.Location, t);
+                }
+                else if (pic[k1].Parent != null)
+                {
+                    pic[k1].groupCenter = SP_缩放(pic[k1].groupCenter, t);
+                    pic[k1].Location = SP_缩放(pic[k1].Location, t);
+                }
+                else 
+                {
+                    pic[k1].groupCenter = SP_缩放(pic[k1].groupCenter, panel1.Location, t);
+                }
             }
         }
 
