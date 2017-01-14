@@ -405,6 +405,17 @@ namespace InstConnection
                     centers[0].Y = formPoint.Y;
                     centers[1].Y = formPoint.Y;
                 }
+                else if (pic[dragname]._接口.Count == 3)
+                {
+                    int tx = (int)(dist * Math.Sqrt(3) / 2);
+                    int ty = (int)(dist / 2.0);
+                    centers[0].X = formPoint.X - tx;
+                    centers[0].Y = formPoint.Y + ty;
+                    centers[1].X = formPoint.X + tx;
+                    centers[1].Y = formPoint.Y + ty;
+                    centers[2].X = formPoint.X;
+                    centers[2].Y = formPoint.Y - dist;
+                }
                 int i = 0;
                 foreach (string k in pic.Keys)
                 {
