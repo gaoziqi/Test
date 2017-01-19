@@ -21,15 +21,18 @@ namespace InstConnection
         {
             public Int32 类型;
             public PointF 位置;
+            public SizeF 大小;
             public String 图像地址; //图像名称
             public string connectName; //连接线缆名
-            public 接口(Int32 类型, float x, float y, string url)
+            public 接口(Int32 类型, Int32 x, Int32 y, Int32 width, Int32 height, string url)
             {
                 this.类型 = new Int32();
                 this.位置 = new PointF();           
                 this.类型 = 类型;
                 this.位置.X = x;
                 this.位置.Y = y;
+                this.大小.Width = width;
+                this.大小.Height = height;
                 this.图像地址 = url;
                 this.connectName = "";
             }
@@ -43,7 +46,17 @@ namespace InstConnection
 
             public int 类型;
             public string name;
-            public Size origin;
+            private Size origin;
+            public Size Origin
+            {
+                get { return origin; }
+                set 
+                { 
+                    origin = value;
+                    this.Width = (int)(origin.Width * 缩放倍数[当前倍数]);
+                    this.Height = (int)(origin.Height * 缩放倍数[当前倍数]);
+                }
+            }
             //部件属性
             public Collection<接口> _接口 = new Collection<接口>();
             //线缆属性
@@ -53,8 +66,10 @@ namespace InstConnection
             public string groupName;
             public 设备 连接设备;
             public PointF 连接设备位置;
+            public SizeF 连接设备大小;
             public 设备(SQLiteDBHelper db,string name, string groupName = "")
             {
+                this.SizeMode = PictureBoxSizeMode.StretchImage;
                 base.Name = name;
                 this.name = name;
                 DataTable dt = sqlite_gzq.SelectData(db, "interface", "name", name);
@@ -63,7 +78,12 @@ namespace InstConnection
                     this.类型 = Convert.ToInt32(dt.Rows[0]["type"]);
                     this.colorName = dt.Rows[0]["remark"].ToString();
                     foreach (DataRow row in dt.Rows)
-                        _接口.Add(new 接口(Convert.ToInt32(row["interface_type"]), Convert.ToSingle(row["position_x"]), Convert.ToSingle(row["position_y"]), row["picture_url"].ToString()));
+                        _接口.Add(new 接口(Convert.ToInt32(row["interface_type"]),
+                            Convert.ToInt32(row["position_x"]),
+                            Convert.ToInt32(row["position_y"]),
+                            Convert.ToInt32(row["size_width"]),
+                            Convert.ToInt32(row["size_height"]),
+                            row["picture_url"].ToString()));
                 }
                 this.groupName = groupName;
                 if (groupName != "") this.类型 = 设备.接口头;
@@ -89,9 +109,9 @@ namespace InstConnection
         
         //缩放
         Size origin_panel1;
-        double[] 缩放倍数=new double[]{0.4, 0.5, 0.6};
-        int 当前倍数 = 1;
-        int 之前倍数 = 1;
+        public static double[] 缩放倍数=new double[]{0.4, 0.5, 0.6};
+        public static int 当前倍数 = 1;
+        public static int 之前倍数 = 1;
         public Form4()
         {
             InitializeComponent();
@@ -239,7 +259,7 @@ namespace InstConnection
         {
             foreach (string k1 in pic.Keys)
             {
-                pic[k1].Size = SP_缩放(pic[k1].origin, 倍数);
+                pic[k1].Size = SP_缩放(pic[k1].Origin, 倍数);
                 double t = 倍数 / 缩放倍数[之前倍数];
                 if (pic[k1].Parent == panel1)
                 {
@@ -310,10 +330,14 @@ namespace InstConnection
             {
                 temppic.Visible = false;
                 temppic.SizeMode = PictureBoxSizeMode.StretchImage;
-                temppic.origin = new Size(temppic.Image.Width, temppic.Image.Height);
-                temppic.Width = (int)(temppic.origin.Width * 缩放倍数[当前倍数]);
-                temppic.Height = (int)(temppic.origin.Height * 缩放倍数[当前倍数]);
-                //panel1.
+                temppic.Origin = new Size(temppic.Image.Width, temppic.Image.Height);
+                foreach (接口 ii in temppic._接口) 
+                {
+                    ii.位置.X = (float)(1.0 * ii.位置.X / temppic.Origin.Width);
+                    ii.位置.Y = (float)(1.0 * ii.位置.Y / temppic.Origin.Height);
+                    ii.大小.Width = (float)(1.0 * ii.大小.Width / temppic.Origin.Width);
+                    ii.大小.Height = (float)(1.0 * ii.大小.Height / temppic.Origin.Height);
+                } 
                 temppic.Parent = panel1;
                 //this.Controls.Add(temppic);   //添加到窗体
             }
@@ -405,6 +429,17 @@ namespace InstConnection
                     centers[0].Y = formPoint.Y;
                     centers[1].Y = formPoint.Y;
                 }
+                else if (pic[dragname]._接口.Count == 3)
+                {
+                    int tx = (int)(dist * Math.Sqrt(3) / 2);
+                    int ty = (int)(dist / 2.0);
+                    centers[0].X = formPoint.X - tx;
+                    centers[0].Y = formPoint.Y + ty;
+                    centers[1].X = formPoint.X + tx;
+                    centers[1].Y = formPoint.Y + ty;
+                    centers[2].X = formPoint.X;
+                    centers[2].Y = formPoint.Y - dist;
+                }
                 int i = 0;
                 foreach (string k in pic.Keys)
                 {
@@ -472,6 +507,7 @@ namespace InstConnection
                             }
                             ii.connectName = 线缆.Name;
                             线缆.连接设备位置 = ii.位置;
+                            线缆.连接设备大小 = ii.大小;
                             connect = true;
                             break;
                         }
@@ -482,6 +518,7 @@ namespace InstConnection
                         线缆.连接设备 = 部件;
                         线缆.Parent = 部件;
                         线缆.Location = new Point((int)(部件.Size.Width * 线缆.连接设备位置.X), (int)(部件.Size.Height * 线缆.连接设备位置.Y));
+                        线缆.Origin = new Size((int)(部件.Origin.Width * 线缆.连接设备大小.Width), (int)(部件.Origin.Height * 线缆.连接设备大小.Height));
                         重新计算中点(线缆.groupName);
                     }
                     else
